@@ -25,8 +25,7 @@ schema = StructType([
 df = spark.read.schema(schema).parquet('/opt/bitnami/spark/jobs/dados_limpos.parquet')
 
 """
-    Aqui eu ainda estou usando o Spark temp view para conseguir fazer a consulta de forma mais facil, pois eu posso fazer as consultas de forma mais facil,
-    e nesse caso, eu preciso ainda coletar as primeiras 3 vendas na data mais recente
+    Aqui eu ainda estou usando o Spark temp view para conseguir fazer a consulta de forma mais facil, e nesse caso, eu preciso ainda coletar as primeiras 3 vendas na data mais recente
 """
 
 df.createOrReplaceTempView("dados_limpos")
