@@ -3,7 +3,7 @@ from pyspark.sql.functions import col, count, when
 from datetime import datetime
 from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType
 
-spark = SparkSession.builder.appName("LocationRegion").getOrCreate()
+spark = SparkSession.builder.appName("Transacoes").getOrCreate()
 
 schema = StructType([
     StructField("timestamp", TimestampType(), True),
