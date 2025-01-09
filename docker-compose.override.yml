@@ -1,0 +1,41 @@
+
+x-spark-common: &spark-common
+  image: bitnami/spark:latest
+  volumes:
+    - ./dados:/opt/bitnami/spark/jobs
+  networks:
+    - airflow
+
+services:
+  spark-master:
+      <<: *spark-common
+      command: bin/spark-class org.apache.spark.deploy.master.Master
+      ports:
+        - "9090:8080"
+        - "7077:7077"
+
+  spark-worker:
+    <<: *spark-common
+    command: bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    depends_on:
+      - spark-master
+    environment:
+      SPARK_MODE: worker
+      SPARK_WORKER_CORES: 12
+      SPARK_WORKER_MEMORY: 16g
+      SPARK_MASTER_URL: spark://spark-master:7077
+      PYSPARK_PYTHON: python3
+      PYSPARK_DRIVER_PYTHON: python3
+      HADOOP_CONF_DIR: /opt/hadoop/etc/hadoop
+      YARN_CONF_DIR: /opt/hadoop/etc/hadoop
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: airflow
+      MYSQL_USER: airflow
+      MYSQL_PASSWORD: airflow_password
+    ports:
+      - "3306:3306"
+    networks:
+      - airflow
