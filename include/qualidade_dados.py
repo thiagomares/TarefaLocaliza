@@ -33,7 +33,7 @@ def insert_quality_metrics():
     colunas = ("total_records", "null_counts", "duplicate_count", "invalid_count", "valid_records", "conformity_percentage")
     valores = (total_records, sum(null_counts.values()), duplicate_count, invalid_count, valid_records, conformity_percentage)
 
-    dados = spark.sparkContext.parallelize([valores]).toDF(colunas)
+    dados = spark.createDataFrame([valores], colunas)
 
 
     # A ideia inicial seria exportar esses dados, mas para conveniência, eu vou jogar para um arquivo parquet

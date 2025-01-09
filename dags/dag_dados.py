@@ -30,8 +30,13 @@ with DAG(
 ) as dag:
 
     
-    DummyOperator = DummyOperator(
+    Start = DummyOperator(
         task_id="start",
+        dag=dag,
+    )
+
+    End = DummyOperator(
+        task_id="end",
         dag=dag,
     )
 
@@ -101,4 +106,4 @@ with DAG(
             on_success_callback=[log_to_db('sucesso_Limpeza', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
         )
     
-    DummyOperator >> teste >> [qualidade, limpeza_dados]
+    Start >> teste >> [qualidade, limpeza_dados] >> End
