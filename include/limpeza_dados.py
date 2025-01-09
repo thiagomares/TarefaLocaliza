@@ -11,6 +11,6 @@ df = df.dropna()
 df = df.filter(df.amount > 0)
 df = df.filter(col("amount").cast("double").isNotNull())
 
-dados.write.parquet("/opt/bitnami/spark/jobs/dados_limpos.parquet").mode("overwrite").save()
+df.write.parquet("/opt/bitnami/spark/jobs/dados_limpos.parquet").mode("overwrite").save()
 
 spark.stop()

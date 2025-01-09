@@ -7,3 +7,5 @@ csv_file_path = '/opt/bitnami/spark/jobs/dados.csv'
 df = spark.read.csv(csv_file_path, header=True, inferSchema=True)
 
 df.show()
+
+spark.stop()

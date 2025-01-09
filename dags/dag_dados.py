@@ -82,7 +82,7 @@ with DAG(
         application="./include/teste.py",
         packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
         dag=dag,
-        on_failure_callback=[log_to_db('falha_validação', 'failed', 'Erro ao processar a tabela de clientes', 'ProjetoLocaliza')],
+        on_failure_callback=[log_to_db('falha_validação', 'failed', 'Erro ao processar a tabela', 'ProjetoLocaliza')],
         on_success_callback=[log_to_db('sucesso_validação', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
     )
 
@@ -92,7 +92,7 @@ with DAG(
         application="./include/qualidade_dados.py",
         packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
         dag=dag,
-        on_failure_callback=[log_to_db('falha_Qualidade', 'failed', 'Erro ao processar a tabela de clientes', 'ProjetoLocaliza')],
+        on_failure_callback=[log_to_db('falha_Qualidade', 'failed', 'Erro ao processar a tabela', 'ProjetoLocaliza')],
         on_success_callback=[log_to_db('sucesso_Qualidade', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
     )
 
@@ -102,8 +102,18 @@ with DAG(
             application="./include/limpeza_dados.py",
             packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
             dag=dag,
-            on_failure_callback=[log_to_db('falha_Limpeza', 'failed', 'Erro ao processar a tabela de clientes', 'ProjetoLocaliza')],
+            on_failure_callback=[log_to_db('falha_Limpeza', 'failed', 'Erro ao processar a tabela', 'ProjetoLocaliza')],
             on_success_callback=[log_to_db('sucesso_Limpeza', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
+        )
+
+    limpeza_dados = SparkSubmitOperator(
+            task_id="location_region",
+            conn_id="spark_default",
+            application="./include/location_region.py",
+            packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
+            dag=dag,
+            on_failure_callback=[log_to_db('falha_region', 'failed', 'Erro ao processar a tabela', 'ProjetoLocaliza')],
+            on_success_callback=[log_to_db('sucesso_region', 'success', 'Tabela processada com sucesso', 'ProjetoLocaliza')]
         )
     
     Start >> teste >> [qualidade, limpeza_dados] >> End
