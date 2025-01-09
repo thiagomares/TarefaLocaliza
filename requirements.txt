@@ -1,4 +1,4 @@
-# Astro Runtime includes the following pre-installed providers packages: https://www.astronomer.io/docs/astro/runtime-image-architecture#provider-packages
+# Outra coisa que eu estou utilizando simplesmente para ganhar tempo: Astronomer, porque ele já faz a parte de infraestrutura para mim.	
 apache-airflow 
 apache-airflow-providers-apache-spark
 pyspark

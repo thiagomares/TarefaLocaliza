@@ -1,10 +1,9 @@
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.appName("CSVDataProcessing").getOrCreate()
+spark = SparkSession.builder.appName("TesteDosDados").getOrCreate()
 
-# Use o caminho absoluto para o arquivo CSV dentro do contêiner Docker
+# Aqui nos estamos testando se o arquivo é lido corretamente, e aparentemente está tudo certo
 csv_file_path = '/opt/bitnami/spark/jobs/dados.csv'
-
 df = spark.read.csv(csv_file_path, header=True, inferSchema=True)
 
 df.show()

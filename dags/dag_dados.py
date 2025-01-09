@@ -6,11 +6,9 @@ from airflow.operators.dummy import DummyOperator
 from airflow.providers.apache.spark.operators.spark_submit import SparkSubmitOperator
 from airflow.providers.mysql.operators.mysql import MySqlOperator
 from datetime import datetime, timedelta
+from pyspark.sql import SparkSession
 from airflow.hooks.base_hook import BaseHook
 import gdown
-from dotenv import load_dotenv
-
-load_dotenv()
 
 
 default_args = {
@@ -69,9 +67,12 @@ with DAG(
         )
         
         log_task.execute(context={})
+    
+    # Preferi fazer tudo via spark pois é uma maneira mais fácil e rápida de fazer o processamento dos dados e implementar a qualidade dos dados, mas poderia ter feito via python e pandas, mas acredito que o spark é mais eficiente e o pandas nessa situação seria um pouco mais lento, devido ao volume de dados relativamente alto
+
 
     teste = SparkSubmitOperator(
-        task_id="tabela_clientes",
+        task_id="testeDados",
         conn_id="spark_default",
         application="./include/teste.py",
         packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
@@ -80,4 +81,24 @@ with DAG(
         on_success_callback=[log_to_db('sucesso_validação', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
     )
 
-    DummyOperator >> teste
+    qualidade = SparkSubmitOperator(
+        task_id="QualidadeDados",
+        conn_id="spark_default",
+        application="./include/qualidade_dados.py",
+        packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
+        dag=dag,
+        on_failure_callback=[log_to_db('falha_Qualidade', 'failed', 'Erro ao processar a tabela de clientes', 'ProjetoLocaliza')],
+        on_success_callback=[log_to_db('sucesso_Qualidade', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
+    )
+
+    limpeza_dados = SparkSubmitOperator(
+            task_id="limpeza_dados",
+            conn_id="spark_default",
+            application="./include/limpeza_dados.py",
+            packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
+            dag=dag,
+            on_failure_callback=[log_to_db('falha_Limpeza', 'failed', 'Erro ao processar a tabela de clientes', 'ProjetoLocaliza')],
+            on_success_callback=[log_to_db('sucesso_Limpeza', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
+        )
+    
+    DummyOperator >> teste >> [qualidade, limpeza_dados]
