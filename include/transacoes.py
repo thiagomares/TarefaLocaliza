@@ -1,10 +1,28 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, count, when
 from datetime import datetime
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType, DoubleType, TimestampType
 
-spark = SparkSession.builder.appName("Transaction").getOrCreate()
+spark = SparkSession.builder.appName("LocationRegion").getOrCreate()
 
-df = spark.read.parquet('/opt/bitnami/spark/jobs/dados_limpos.parquet')
+schema = StructType([
+    StructField("timestamp", TimestampType(), True),
+    StructField("sending_address", StringType(), True),
+    StructField("receiving_address", StringType(), True),
+    StructField("amount", DoubleType(), True),
+    StructField("transaction_type", StringType(), True),
+    StructField("location_region", StringType(), True),
+    StructField("ip_prefix", StringType(), True),
+    StructField("login_frequency", IntegerType(), True),
+    StructField("session_duration", DoubleType(), True),
+    StructField("purchase_pattern", StringType(), True),
+    StructField("age_group", StringType(), True),
+    StructField("risk_score", DoubleType(), True),
+    StructField("anomaly", StringType(), True)
+])
+
+
+df = spark.read.schema(schema).parquet('/opt/bitnami/spark/jobs/dados_limpos.parquet')
 
 """
     Aqui eu ainda estou usando o Spark temp view para conseguir fazer a consulta de forma mais facil, pois eu posso fazer as consultas de forma mais facil,
@@ -13,7 +31,7 @@ df = spark.read.parquet('/opt/bitnami/spark/jobs/dados_limpos.parquet')
 
 df.createOrReplaceTempView("dados_limpos")
 
-df = spark.sql("""
+dados = spark.sql("""
     select
         cast(timestamp as date) as data,
         amount,
@@ -26,7 +44,7 @@ df = spark.sql("""
     limit 3
 """)
 
-df.write.parquet("/opt/bitnami/spark/jobs/transactions.parquet").mode("overwrite").save()
+dados.write.parquet("/opt/bitnami/spark/jobs/transactions.parquet").mode("overwrite").save()
 
 spark.stop()
 

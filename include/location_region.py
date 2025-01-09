@@ -31,7 +31,7 @@ df = spark.read.schema(schema).parquet('/opt/bitnami/spark/jobs/dados_limpos.par
 
 df.createOrReplaceTempView("dados_limpos")
 
-df = spark.sql("""
+dados = spark.sql("""
     select 
         location_region,
         AVG(risk_score) AS avg_risk_score
@@ -40,7 +40,7 @@ df = spark.sql("""
     order by AVG(risk_score) DESC
 """)
 
-df.write.parquet("/opt/bitnami/spark/jobs/location_region.parquet").mode("overwrite").save()
+dados.write.parquet("/opt/bitnami/spark/jobs/location_region.parquet").mode("overwrite").save()
 
 spark.stop()
 
