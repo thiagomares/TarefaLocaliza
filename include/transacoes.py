@@ -4,7 +4,7 @@ from datetime import datetime
 
 spark = SparkSession.builder.appName("Transaction").getOrCreate()
 
-df = read.parquet('/opt/bitnami/spark/jobs/dados_limpos.parquet')
+df = spark.read.parquet('/opt/bitnami/spark/jobs/dados_limpos.parquet')
 
 """
     Aqui eu ainda estou usando o Spark temp view para conseguir fazer a consulta de forma mais facil, pois eu posso fazer as consultas de forma mais facil,

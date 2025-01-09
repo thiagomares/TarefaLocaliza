@@ -45,7 +45,7 @@ def insert_quality_metrics():
         password="root_password"
     ).mode("append").save()
     mysql_hook.run(query)"""
-    dados.write.parquet("/opt/bitnami/spark/jobs/quality_metrics.parquet").mode("overwrite").save()
+    dados.write.parquet("/opt/bitnami/spark/jobs/dq/quality_metrics.parquet").mode("overwrite").save()
 
     spark.stop()
 

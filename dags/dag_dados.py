@@ -106,7 +106,7 @@ with DAG(
             on_success_callback=[log_to_db('sucesso_Limpeza', 'success', 'Tabela de clientes processada com sucesso', 'ProjetoLocaliza')]
         )
 
-    limpeza_dados = SparkSubmitOperator(
+    location_region = SparkSubmitOperator(
             task_id="location_region",
             conn_id="spark_default",
             application="./include/location_region.py",
@@ -115,5 +115,17 @@ with DAG(
             on_failure_callback=[log_to_db('falha_region', 'failed', 'Erro ao processar a tabela', 'ProjetoLocaliza')],
             on_success_callback=[log_to_db('sucesso_region', 'success', 'Tabela processada com sucesso', 'ProjetoLocaliza')]
         )
+
+    transaction = SparkSubmitOperator(
+            task_id="transactions",
+            conn_id="spark_default",
+            application="./include/transacoes.py",
+            packages='mysql:mysql-connector-java:8.0.32,com.amazonaws:aws-java-sdk-s3:1.12.200,org.apache.hadoop:hadoop-aws:3.3.1',
+            dag=dag,
+            on_failure_callback=[log_to_db('falha_transaction', 'failed', 'Erro ao processar a tabela', 'ProjetoLocaliza')],
+            on_success_callback=[log_to_db('sucesso_transaction', 'success', 'Tabela processada com sucesso', 'ProjetoLocaliza')]
+        )
     
-    Start >> teste >> [qualidade, limpeza_dados] >> End
+    Start >> teste >> [qualidade, limpeza_dados]  
+    limpeza_dados >> [location_region, transaction]
+    [location_region, transaction, qualidade] >> End
